@@ -28,7 +28,8 @@ import java.util.Arrays;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private static final int LOCATION_REQUEST = 1;
+    private static final int FINE_REQUEST = 1;
+    private static final int COARSE_REQUEST = 2;
 
     private static final String TAG = "MapsActivity";
     private GoogleMap mMap;
@@ -62,19 +63,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(TAG, "Requesting location...");
 
         // Register the listener with the Location Manager to receive location updates
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Needs permish");
 
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                    LOCATION_REQUEST);
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_REQUEST);
         } else {
             startListening();
         }
@@ -88,10 +80,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Define a listener that responds to location updates
         LocationListener gpsListener = new LocationListener() {
             public void onLocationChanged(Location location) {
-                // Called when a new location is found by the network location provider.
+                // Called when a new location is found by the wifiwork location provider.
                 Log.d(TAG, "New location");
 
-                makeUseOfNewLocation(location);
+                makeUseOfGpsLocation(location);
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -104,14 +96,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         };
 
-        LocationListener networkListener = new LocationListener() {
+        LocationListener wifiworkListener = new LocationListener() {
             public void onLocationChanged(Location location) {
-                // Called when a new location is found by the network location provider.
-                Log.d(TAG, "New location");
+                // Called when a new location is found by the wifiwork location provider.
+                Log.d(TAG, "New wifiwork location");
 
-                LatLng ben = new LatLng(location.getLatitude(), location.getLongitude());
-                if (netMarker != null) netMarker.remove();
-                netMarker = mMap.addMarker(new MarkerOptions().position(ben).title("Ben").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                makeUseOfWifiLocation(location);
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -126,34 +116,62 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         assert locationManager != null;
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsListener);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkListener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, wifiworkListener);
 
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case LOCATION_REQUEST:
+            case COARSE_REQUEST:
                 Log.d(TAG, Arrays.toString(grantResults));
 
-                startListening();
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_REQUEST);
+                } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startListening();
+                }
+                break;
+            case FINE_REQUEST:
+                Log.d(TAG, Arrays.toString(grantResults));
+
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, COARSE_REQUEST);
+                } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startListening();
+                }
                 break;
         }
     }
 
-    Marker gpsMarker, netMarker;
+    Marker gpsMarker, wifiMarker;
 
-    private void makeUseOfNewLocation(Location location) {
+    private void makeUseOfGpsLocation(Location location) {
         LatLng ben = new LatLng(location.getLatitude(), location.getLongitude());
         if (gpsMarker != null) gpsMarker.remove();
         gpsMarker = mMap.addMarker(new MarkerOptions().position(ben).title("Ben"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ben, 21f));
 
-        // Save to Firebase every new location? Too spammy?
+        // Save to Firebase every new location? TODO Too spammy?
         // Write a message to the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference latRef = database.getReference("gpsLocation/lat");
         DatabaseReference longRef = database.getReference("gpsLocation/long");
+
+        latRef.setValue(location.getLatitude());
+        longRef.setValue(location.getLongitude());
+    }
+
+    private void makeUseOfWifiLocation(Location location) {
+        LatLng ben = new LatLng(location.getLatitude(), location.getLongitude());
+        if (wifiMarker != null) wifiMarker.remove();
+        wifiMarker = mMap.addMarker(new MarkerOptions().position(ben).title("Ben").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+
+        // Save to Firebase every new location? TODO Too spammy?
+        // Write a message to the database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference latRef = database.getReference("wifiLocation/lat");
+        DatabaseReference longRef = database.getReference("wifiLocation/long");
 
         latRef.setValue(location.getLatitude());
         longRef.setValue(location.getLongitude());
