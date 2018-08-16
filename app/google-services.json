@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1098915222763",
+    "firebase_url": "https://onyx-pad-213520.firebaseio.com",
+    "project_id": "onyx-pad-213520",
+    "storage_bucket": "onyx-pad-213520.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1098915222763:android:08d69000d6b7b8fb",
+        "android_client_info": {
+          "package_name": "com.illumio.benfinder160"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1098915222763-hcfbo8sv872eh0uvn5ekmb9uugtg58pm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcnR5bdLyLJQZq9xdqdT_rPfyQKcZ9sFQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
