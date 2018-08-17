@@ -27,17 +27,24 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>BenFinder 160</title>
+    <link href="https://fonts.googleapis.com/css?family=Rock+Salt" rel="stylesheet">
     <link href="style.css" rel="stylesheet" type="text/css">
 </head>
 <body>
     <div id="message">
-        <h2>Welcome</h2>
-        <p id="gpsLocation"></p>
-        <svg id="svg" width=400 height=150 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-            <image xlink:href="Map.jpg" width=400 height=150 />
+        <h1>
+            <span>Welcome to the&nbsp;</span>
+            <span id="name">BENFINDER 160!&nbsp;</span>
+        </h1>
+        <svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <image id="map" xlink:href="Map.jpg" />
+            <image id="ben" xlink:href="BenVerghese.jpg" />
+            <circle id="benCircle" stroke-width="3" stroke="blue" r="80" fill="none" />
         </svg>
+        <img src="BenFinderLogo.png" height="80px"/>
+        <p id="gpsLocation">Finding Ben...</p>
     </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
+    <p id="load">Created by Deborah Smead, Erdy Barlahan, Sarang Joshi</p>
     <script src="script.js"></script>
 </body>
 </html>
